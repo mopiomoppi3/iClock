@@ -23,6 +23,7 @@
 [data-theme=purple]{--bg:linear-gradient(160deg,#2a1450,#120726);--fg:#f1e9ff;--sub:rgba(241,233,255,.6);--glass:rgba(190,150,255,.14);--line:rgba(200,170,255,.22);--acc:#c79bff;--onacc:#180a30;--sheet:rgba(40,20,80,.8)}
 html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+button,input{font-family:inherit}
 body{margin:0;height:100%;background:var(--bg);color:var(--fg);overflow:hidden;
 font-family:var(--ftxt);user-select:none;-webkit-user-select:none}
 #stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2vmin;padding:44px max(18px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px)*.4 + 14px) max(18px,env(safe-area-inset-left));
@@ -100,6 +101,7 @@ input[type=range]{width:55%;accent-color:var(--acc)}
   <p class="sec">表示</p>
   <label class="row"><span>24時間表示</span><input type="checkbox" data-o="h24"></label>
   <label class="row"><span>秒を表示</span><input type="checkbox" data-o="sec"></label>
+  <label class="row"><span>焼き付き防止<small>1分ごとに表示を少しずらします</small></span><input type="checkbox" data-o="shift"></label>
   <div class="row w"><span>テーマ</span><div class="ctl" id="themes"></div></div>
   <p class="sec">フォント</p><div id="fonts"></div>
   <div class="row"><span>ニュースの速さ</span><input type="range" id="ns" min="10" max="120" step="5"></div>
@@ -127,8 +129,8 @@ function icon(n){
 try{document.getElementById('ati').href=icon(180);document.getElementById('fav').href=icon(64);}catch(e){}
 
 // ---------- 設定 ----------
-var D={ns:40,pos:{weather:'top',cal:'top',world:'top',news:'bottom'},theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false}};
-try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.ns=sv.ns||40;D.pos=Object.assign(D.pos,sv.pos||{});D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
+var D={shift:false,ns:40,pos:{weather:'top',cal:'top',world:'top',news:'bottom'},theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false}};
+try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.ns=sv.ns||40;D.shift=!!sv.shift;D.pos=Object.assign(D.pos,sv.pos||{});D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
 function save(){try{localStorage.setItem('okidokei',JSON.stringify(D));}catch(e){}}
 var $=function(i){return document.getElementById(i)};
 var wd=['日','月','火','水','木','金','土'];
@@ -143,7 +145,8 @@ function tick(){
   $('sec').textContent=D.sec?String(d.getSeconds()).padStart(2,'0'):'';
   var ds=(d.getMonth()+1)+'月'+d.getDate()+'日 '+wd[d.getDay()]+'曜日';
   if(ds!==last){last=ds;$('date').textContent=ds;buildCal();}
-  if(d.getSeconds()===0){var a=(d.getMinutes()%2?1:-1)*6;$('stage').style.transform='translate('+a+'px,'+(-a/2)+'px)';} // 焼き付き防止
+  if(!D.shift)$('stage').style.transform='';
+  else if(d.getSeconds()===0){var a=(d.getMinutes()%2?1:-1)*6;$('stage').style.transform='translate('+a+'px,'+(-a/2)+'px)';} // 焼き付き防止
   updWorld();
 }
 setInterval(tick,1000);
@@ -248,7 +251,7 @@ function loadFonts(){if(loaded)return;loaded=true;var l=document.createElement('
 function look(){
   var h=document.documentElement,F=FD[D.font]||FD.jost;h.dataset.theme=D.theme;
   h.style.setProperty('--fnum','"'+F.f+'","Helvetica Neue",sans-serif');h.style.setProperty('--wn',F.w);h.style.setProperty('--cs',F.s);
-  if(F.j)h.style.setProperty('--fd','"'+F.f+'",sans-serif');else h.style.removeProperty('--fd');
+  if(F.j){var st='"'+F.f+'",sans-serif';h.style.setProperty('--fd',st);h.style.setProperty('--ftxt',st);}else{h.style.removeProperty('--fd');h.style.removeProperty('--ftxt');}
   var m=document.querySelector('meta[name=theme-color]');if(m)m.content=TH[D.theme][1];
   document.querySelectorAll('.sw').forEach(function(b){b.classList.toggle('on',b.dataset.t===D.theme)});
   document.querySelectorAll('.pill').forEach(function(b){b.classList.toggle('on',b.dataset.f===D.font)});
