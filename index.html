@@ -49,7 +49,7 @@ animation:in .7s var(--spring) both;overflow:hidden}
 .big{font-size:22px;font-weight:300;font-family:var(--fnum)}.sm{font-size:13px;color:var(--sub)}
 .mq{display:flex;width:max-content;font-size:15px;animation:mq 60s linear infinite}.mq span{white-space:nowrap}.mq i{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4;margin:0 1.3em;vertical-align:middle}@keyframes mq{to{transform:translateX(-50%)}}
 .card.n{flex:1 1 100%}.card.n .b{justify-content:flex-start;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
-.news{font-size:15px;overflow:hidden;text-overflow:ellipsis}.b{transition:opacity .5s}
+.news{font-size:15px;overflow:hidden;text-overflow:ellipsis}.b{transition:opacity .45s}
 .cal{display:flex;gap:6px;font-size:13px;color:var(--sub)}.cal .d{padding:2px 7px;border-radius:10px}.cal .t{background:var(--acc);color:var(--onacc);font-weight:600}
 .wr{font-size:13px;color:var(--sub)}.wr span:last-child{color:var(--fg);margin-left:5px;font-variant-numeric:tabular-nums}
 #gear{position:fixed;right:max(16px,env(safe-area-inset-right));top:calc(env(safe-area-inset-top,0px) + 6px);width:36px;height:36px;border-radius:50%;
@@ -102,6 +102,7 @@ input[type=range]{width:55%;accent-color:var(--acc)}
   <div class="row"><label class="lt" for="w-news">ニュース<small>NHK主要ニュース</small></label><div class="seg" data-p="news"><button data-v="top">上</button><button data-v="bottom">下</button></div><input id="w-news" type="checkbox" data-w="news"></div>
   <div class="row"><label class="lt" for="w-cal">カレンダー<small>今月のカレンダー</small></label><div class="seg" data-p="cal"><button data-v="top">上</button><button data-v="bottom">下</button></div><input id="w-cal" type="checkbox" data-w="cal"></div>
   <div class="row"><label class="lt" for="w-world">世界時計<small>ニューヨーク・ロンドン・パリ</small></label><div class="seg" data-p="world"><button data-v="top">上</button><button data-v="bottom">下</button></div><input id="w-world" type="checkbox" data-w="world"></div>
+  <button class="btn" id="rf">天気・ニュースを今すぐ更新</button>
   <p class="sec">表示</p>
   <label class="row"><span>24時間表示</span><input type="checkbox" data-o="h24"></label>
   <label class="row"><span>秒を表示</span><input type="checkbox" data-o="sec"></label>
@@ -167,6 +168,13 @@ setInterval(tick,1000);
 var WT=$('wt'),WB=$('wb'),els={};
 function card(k,title){var e=document.createElement('div');e.className='card'+(k==='news'?' n':'');e.innerHTML='<h4>'+title+'</h4><div class="b"></div>';els[k]=e;return e;}
 function body(k){return els[k].querySelector('.b');}
+var refresh={};
+function swap(k,html,cb){
+  if(!els[k])return;var b=body(k);
+  if(b._h===html)return;
+  b._h=html;clearTimeout(b._t);b.style.opacity=0;
+  b._t=setTimeout(function(){if(!els[k])return;b.innerHTML=html;if(cb)cb();b.style.opacity=1;},450);
+}
 function syncW(){
   [['weather','天気'],['news','ニュース'],['cal','カレンダー'],['world','世界時計']].forEach(function(p){
     var k=p[0],t=D.pos[k]==='bottom'?WB:WT;
@@ -190,13 +198,13 @@ var init={
       var u='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto';
       fetch(u).then(function(r){return r.json()}).then(function(j){
         if(!els.weather)return;var c=j.current,dl=j.daily,m=wmo(c.weather_code);
-        body('weather').innerHTML='<span class="big">'+m[0]+' '+Math.round(c.temperature_2m)+'°</span><span class="sm">'+m[1]+' ・ '+Math.round(dl.temperature_2m_max[0])+'° / '+Math.round(dl.temperature_2m_min[0])+'° ・ 降水'+dl.precipitation_probability_max[0]+'%</span>';
-      }).catch(function(){if(els.weather)body('weather').innerHTML='<div class="sm">天気を取得できません</div>';});
+        swap('weather','<span class="big">'+m[0]+' '+Math.round(c.temperature_2m)+'°</span><span class="sm">'+m[1]+' ・ '+Math.round(dl.temperature_2m_max[0])+'° / '+Math.round(dl.temperature_2m_min[0])+'° ・ 降水'+dl.precipitation_probability_max[0]+'%</span>');
+      }).catch(function(){if(els.weather&&!body('weather')._h)swap('weather','<div class="sm">天気を取得できません</div>');});
     }
     var run=function(){
       if(navigator.geolocation)navigator.geolocation.getCurrentPosition(function(p){go(p.coords.latitude.toFixed(2),p.coords.longitude.toFixed(2));},function(){go(35.68,139.76);},{timeout:8000});
       else go(35.68,139.76);
-    };run();timers.weather=setInterval(function(){if(els.weather)run();},900000);
+    };refresh.weather=run;run();clearInterval(timers.weather);timers.weather=setInterval(function(){if(els.weather)run();},900000);
   },
   news:function(){
     body('news').innerHTML='<div class="sm">取得中…</div>';
@@ -204,10 +212,10 @@ var init={
       fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent('https://www3.nhk.or.jp/rss/news/cat0.xml')).then(function(r){return r.json()}).then(function(j){
         var t=(j.items||[]).slice(0,10).map(function(x){return x.title});if(!t.length)throw 0;if(!els.news)return;
         var line=t.map(esc).join('<i></i>')+'<i></i>';
-        body('news').innerHTML='<div class="mq"><span>'+line+'</span><span>'+line+'</span></div>';newsSpeed();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(newsSpeed);
-      }).catch(function(){if(els.news)body('news').innerHTML='<div class="sm">ニュースを取得できません</div>';});
+        swap('news','<div class="mq"><span>'+line+'</span><span>'+line+'</span></div>',function(){newsSpeed();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(newsSpeed);});
+      }).catch(function(){if(els.news&&!body('news')._h)swap('news','<div class="sm">ニュースを取得できません</div>');});
     }
-    load();timers.news2=setInterval(function(){if(els.news)load();},1200000);
+    refresh.news=load;load();clearInterval(timers.news2);timers.news2=setInterval(function(){if(els.news)load();},1200000);
   },
   cal:function(){buildCal();},
   world:function(){body('world').innerHTML=[['NY','America/New_York'],['ロンドン','Europe/London'],['パリ','Europe/Paris']].map(function(z){return '<div class="wr"><span>'+z[0]+'</span><span data-tz="'+z[1]+'"></span></div>'}).join('');updWorld();}
@@ -252,6 +260,7 @@ $('done').onclick=function(){sh.classList.remove('open');wake();};
 document.querySelectorAll('[data-w]').forEach(function(c){c.checked=!!D.w[c.dataset.w];c.onchange=function(){D.w[c.dataset.w]=c.checked;save();syncW();};});
 document.querySelectorAll('[data-o]').forEach(function(c){c.checked=!!D[c.dataset.o];c.onchange=function(){D[c.dataset.o]=c.checked;save();tick();};});
 $('br').value=D.br;function applyBr(){$('dim').style.opacity=D.br/100;}applyBr();
+$('rf').onclick=function(){var b=this;['weather','news'].forEach(function(k){if(els[k]&&refresh[k])refresh[k]();});b.textContent='更新しました';clearTimeout(b._t);b._t=setTimeout(function(){b.textContent='天気・ニュースを今すぐ更新';},1800);};
 $('ns').value=D.ns;$('ns').oninput=function(){D.ns=+this.value;newsSpeed();save();};
 $('br').oninput=function(){D.br=+this.value;applyBr();save();};
 $('fs').onclick=function(){var e=document.documentElement;try{(e.requestFullscreen||e.webkitRequestFullscreen).call(e);}catch(x){}sh.classList.remove('open');};
