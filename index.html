@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" id="ati" sizes="180x180" href="">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&family=Cormorant+Garamond:wght@300;400&family=Zen+Maru+Gothic:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
 <style>
-:root{--bg:#000;--fg:#f5f5f7;--sub:rgba(245,245,247,.55);--glass:rgba(255,255,255,.09);--line:rgba(255,255,255,.14);--acc:#f5f5f7;--onacc:#000;--sheet:rgba(40,40,44,.72);--ftxt:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans",sans-serif;--fnum:"Jost","Helvetica Neue",sans-serif;--wn:200;--cs:1;
+:root{--bg:#000;--fg:#f5f5f7;--sub:rgba(245,245,247,.55);--glass:rgba(255,255,255,.09);--line:rgba(255,255,255,.14);--acc:#f5f5f7;--onacc:#000;--sheet:rgba(40,40,44,.72);--ftxt:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans",sans-serif;--fnum:"Jost","Helvetica Neue",sans-serif;--wn:200;--cs:1;--bh:40px;
 --spring:cubic-bezier(.2,.9,.25,1.15);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
 [data-theme=light]{--bg:#f2f2f7;--fg:#1c1c1e;--sub:rgba(28,28,30,.5);--glass:rgba(255,255,255,.7);--line:rgba(0,0,0,.08);--acc:#1c1c1e;--onacc:#fff;--sheet:rgba(255,255,255,.8)}
 [data-theme=pink]{--bg:linear-gradient(160deg,#ffe3ee,#ffc2d8);--fg:#5b1a36;--sub:rgba(91,26,54,.55);--glass:rgba(255,255,255,.5);--line:rgba(255,255,255,.7);--acc:#ff4f87;--onacc:#fff;--sheet:rgba(255,240,246,.82)}
@@ -36,7 +36,7 @@ font-size:calc(min(27vw,42vh)*var(--cs));line-height:1;white-space:nowrap}
 #mid{display:flex;flex-direction:column;align-items:center;gap:1.5vmin}
 #date{font-family:var(--fd,var(--ftxt));font-size:min(5vw,3.6vh);color:var(--sub);letter-spacing:.12em;font-weight:400}
 .strip{display:flex;flex-wrap:wrap;gap:8px;width:min(920px,100%);justify-content:center}.strip:empty{visibility:hidden;height:40px}
-.card{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:8px 14px;min-height:0;flex:1 1 auto;display:flex;align-items:center;min-width:0;white-space:nowrap;
+.card{background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:8px 22px;min-height:var(--bh);flex:1 1 auto;display:flex;align-items:center;min-width:0;white-space:nowrap;
 -webkit-backdrop-filter:blur(30px) saturate(1.6);backdrop-filter:blur(30px) saturate(1.6);
 animation:in .7s var(--spring) both;overflow:hidden}
 @keyframes in{from{opacity:0;transform:translateY(16px) scale(.94)}}
@@ -51,7 +51,7 @@ animation:in .7s var(--spring) both;overflow:hidden}
 border:1px solid var(--line);background:var(--glass);color:var(--fg);font-size:17px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
 transition:opacity .5s,transform .5s var(--spring);cursor:pointer}
 body.idle #gear{opacity:0;pointer-events:none;transform:scale(.8)}
-#gear.in{position:static;width:42px;height:auto;align-self:stretch;border-radius:16px;flex:none;opacity:.6}body.idle #gear.in{opacity:.5;pointer-events:auto;transform:none}
+#gear.in{position:static;width:var(--bh);height:var(--bh);align-self:center;border-radius:50%;flex:none;opacity:.6}body.idle #gear.in{opacity:.5;pointer-events:auto;transform:none}
 body.gin #stage{padding-top:18px}
 .lt{flex:1;min-width:0;cursor:pointer}
 .seg{display:flex;background:rgba(120,120,128,.25);border-radius:9px;padding:2px;margin:0 12px;flex:none}.seg button{border:0;background:none;color:var(--sub);font-size:13px;padding:4px 11px;border-radius:7px;cursor:pointer;transition:background .3s,color .3s}.seg button.on{background:var(--acc);color:var(--onacc)}
@@ -75,7 +75,7 @@ input[type=range]{width:55%;accent-color:var(--acc)}
 .sw{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0}.sw.on{box-shadow:0 0 0 2px var(--bg,#000),0 0 0 4px var(--acc)}
 #fonts .ctl{justify-content:flex-start}.fg small{display:block;font-size:12px;color:var(--sub);margin:8px 0 4px}
 .pill{padding:6px 12px;border-radius:14px;border:1px solid var(--line);background:none;color:var(--fg);font-size:14px;cursor:pointer}.pill.on{background:var(--acc);color:var(--onacc)}
-@media (max-height:430px){#stage{padding-top:40px}.card{padding:5px 12px}.strip:empty{height:30px}}
+@media (max-height:430px){#stage{padding-top:40px}:root{--bh:34px}.card{padding:5px 18px}.strip:empty{height:30px}}
 </style>
 </head>
 <body>
@@ -102,6 +102,7 @@ input[type=range]{width:55%;accent-color:var(--acc)}
   <label class="row"><span>秒を表示</span><input type="checkbox" data-o="sec"></label>
   <div class="row w"><span>テーマ</span><div class="ctl" id="themes"></div></div>
   <p class="sec">フォント</p><div id="fonts"></div>
+  <div class="row"><span>ニュースの速さ</span><input type="range" id="ns" min="10" max="120" step="5"></div>
   <div class="row"><span>明るさ</span><input type="range" id="br" min="0" max="85" value="0"></div>
   <button class="btn" id="fs">全画面にする</button>
   </div>
@@ -126,8 +127,8 @@ function icon(n){
 try{document.getElementById('ati').href=icon(180);document.getElementById('fav').href=icon(64);}catch(e){}
 
 // ---------- 設定 ----------
-var D={pos:{weather:'top',cal:'top',world:'top',news:'bottom'},theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false}};
-try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.pos=Object.assign(D.pos,sv.pos||{});D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
+var D={ns:40,pos:{weather:'top',cal:'top',world:'top',news:'bottom'},theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false}};
+try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.ns=sv.ns||40;D.pos=Object.assign(D.pos,sv.pos||{});D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
 function save(){try{localStorage.setItem('okidokei',JSON.stringify(D));}catch(e){}}
 var $=function(i){return document.getElementById(i)};
 var wd=['日','月','火','水','木','金','土'];
@@ -188,7 +189,7 @@ var init={
       fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent('https://www3.nhk.or.jp/rss/news/cat0.xml')).then(function(r){return r.json()}).then(function(j){
         var t=(j.items||[]).slice(0,10).map(function(x){return x.title});if(!t.length)throw 0;if(!els.news)return;
         var line=t.map(esc).join('<i>●</i>')+'<i>●</i>';
-        body('news').innerHTML='<div class="mq" style="animation-duration:'+Math.max(30,Math.round(t.join('').length*.25))+'s"><span>'+line+'</span><span>'+line+'</span></div>';
+        body('news').innerHTML='<div class="mq"><span>'+line+'</span><span>'+line+'</span></div>';newsSpeed();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(newsSpeed);
       }).catch(function(){if(els.news)body('news').innerHTML='<div class="sm">ニュースを取得できません</div>';});
     }
     load();timers.news2=setInterval(function(){if(els.news)load();},1200000);
@@ -207,6 +208,7 @@ function buildCal(){
   for(var i=0;i<7;i++){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()-d.getDay()+i);h+='<span class="d'+(x.getDate()===d.getDate()?' t':'')+'">'+wd[x.getDay()]+' '+x.getDate()+'</span>';}
   body('cal').innerHTML='<div class="cal">'+h+'</div>';
 }
+function newsSpeed(){var m=els.news&&els.news.querySelector('.mq');if(m&&m.firstChild.offsetWidth)m.style.animationDuration=(m.firstChild.offsetWidth/D.ns)+'s';}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function wmo(c){
   if(c===0)return['☀️','快晴'];if(c<=2)return['🌤️','晴れ'];if(c===3)return['☁️','くもり'];if(c<=48)return['🌫️','霧'];
@@ -222,6 +224,7 @@ $('done').onclick=function(){sh.classList.remove('open');wake();};
 document.querySelectorAll('[data-w]').forEach(function(c){c.checked=!!D.w[c.dataset.w];c.onchange=function(){D.w[c.dataset.w]=c.checked;save();syncW();};});
 document.querySelectorAll('[data-o]').forEach(function(c){c.checked=!!D[c.dataset.o];c.onchange=function(){D[c.dataset.o]=c.checked;save();tick();};});
 $('br').value=D.br;function applyBr(){$('dim').style.opacity=D.br/100;}applyBr();
+$('ns').value=D.ns;$('ns').oninput=function(){D.ns=+this.value;newsSpeed();save();};
 $('br').oninput=function(){D.br=+this.value;applyBr();save();};
 $('fs').onclick=function(){var e=document.documentElement;try{(e.requestFullscreen||e.webkitRequestFullscreen).call(e);}catch(x){}sh.classList.remove('open');};
 if(!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))$('fs').style.display='none';
