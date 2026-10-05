@@ -42,8 +42,10 @@ font-size:calc(min(27vw,42vh)*var(--cs));line-height:1;white-space:nowrap}
 animation:in .7s var(--spring) both;overflow:hidden}
 @keyframes in{from{opacity:0;transform:translateY(16px) scale(.94)}}
 .card h4{display:none}.b{display:flex;gap:10px;align-items:baseline;flex:1;min-width:0;justify-content:center}
+.wi{width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.2em;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#gear{display:flex;align-items:center;justify-content:center;padding:0}
 .big{font-size:22px;font-weight:300;font-family:var(--fnum)}.sm{font-size:13px;color:var(--sub)}
-.mq{display:flex;width:max-content;font-size:15px;animation:mq 60s linear infinite}.mq span{white-space:nowrap}.mq i{font-style:normal;font-size:6px;opacity:.5;margin:0 1.3em;vertical-align:middle}@keyframes mq{to{transform:translateX(-50%)}}
+.mq{display:flex;width:max-content;font-size:15px;animation:mq 60s linear infinite}.mq span{white-space:nowrap}.mq i{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4;margin:0 1.3em;vertical-align:middle}@keyframes mq{to{transform:translateX(-50%)}}
 .card.n{flex:1 1 100%}.card.n .b{justify-content:flex-start;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 .news{font-size:15px;overflow:hidden;text-overflow:ellipsis}.b{transition:opacity .5s}
 .cal{display:flex;gap:6px;font-size:13px;color:var(--sub)}.cal .d{padding:2px 7px;border-radius:10px}.cal .t{background:var(--acc);color:var(--onacc);font-weight:600}
@@ -88,7 +90,7 @@ input[type=range]{width:55%;accent-color:var(--acc)}
   </div>
   <div id="wb" class="strip"></div>
 </div>
-<button id="gear" aria-label="設定">⚙︎</button>
+<button id="gear" aria-label="設定"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h9M18 7h2M4 17h2M11 17h9"/><circle cx="15.5" cy="7" r="2.3"/><circle cx="8.5" cy="17" r="2.3"/></svg></button>
 <div id="dim"></div>
 <div id="sheet" role="dialog">
   <h3>設定<button id="done">完了</button></h3>
@@ -191,7 +193,7 @@ var init={
     function load(){
       fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent('https://www3.nhk.or.jp/rss/news/cat0.xml')).then(function(r){return r.json()}).then(function(j){
         var t=(j.items||[]).slice(0,10).map(function(x){return x.title});if(!t.length)throw 0;if(!els.news)return;
-        var line=t.map(esc).join('<i>●</i>')+'<i>●</i>';
+        var line=t.map(esc).join('<i></i>')+'<i></i>';
         body('news').innerHTML='<div class="mq"><span>'+line+'</span><span>'+line+'</span></div>';newsSpeed();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(newsSpeed);
       }).catch(function(){if(els.news)body('news').innerHTML='<div class="sm">ニュースを取得できません</div>';});
     }
@@ -214,8 +216,21 @@ function buildCal(){
 function newsSpeed(){var m=els.news&&els.news.querySelector('.mq');if(m&&m.firstChild.offsetWidth)m.style.animationDuration=(m.firstChild.offsetWidth/D.ns)+'s';}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function wmo(c){
-  if(c===0)return['☀️','快晴'];if(c<=2)return['🌤️','晴れ'];if(c===3)return['☁️','くもり'];if(c<=48)return['🌫️','霧'];
-  if(c<=57)return['🌦️','霧雨'];if(c<=67)return['🌧️','雨'];if(c<=77)return['🌨️','雪'];if(c<=82)return['🌦️','にわか雨'];if(c<=86)return['🌨️','にわか雪'];return['⛈️','雷雨'];
+  var CL='<g transform="translate(0,-3)"><path d="M7 18h10a4 4 0 0 0 .4-7.98A5.5 5.5 0 0 0 6.9 9.2 4.5 4.5 0 0 0 7 18z"/></g>';
+  var I={
+    sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+    part:'<circle cx="8" cy="8" r="2.8"/><path d="M8 2.2v1.2M2.2 8h1.2M3.9 3.9l.9.9M12.1 3.9l-.9.9"/><path d="M9 20h8a3.5 3.5 0 0 0 .3-7A4.8 4.8 0 0 0 8.2 12.4 3.8 3.8 0 0 0 9 20z"/>',
+    cloud:'<path d="M7 19h10a4 4 0 0 0 .4-7.98A5.5 5.5 0 0 0 6.9 10.2 4.5 4.5 0 0 0 7 19z"/>',
+    fog:'<path d="M4 8h16M3 12h18M6 16h12M9 20h6"/>',
+    drizzle:CL+'<path d="M8 18v.01M12 20v.01M16 18v.01" stroke-width="2.4"/>',
+    rain:CL+'<path d="M8 17l-1 3M12 17l-1 3M16 17l-1 3"/>',
+    snow:CL+'<path d="M8 18v.01M12 21v.01M16 18v.01" stroke-width="2.8"/>',
+    storm:CL+'<path d="M12.8 14.5l-2.8 3.7h3.2l-2.2 3.8"/>'
+  };
+  var k,t;
+  if(c===0){k='sun';t='快晴';}else if(c<=2){k='part';t='晴れ';}else if(c===3){k='cloud';t='くもり';}else if(c<=48){k='fog';t='霧';}
+  else if(c<=57){k='drizzle';t='霧雨';}else if(c<=67){k='rain';t='雨';}else if(c<=77){k='snow';t='雪';}else if(c<=82){k='rain';t='にわか雨';}else if(c<=86){k='snow';t='にわか雪';}else{k='storm';t='雷雨';}
+  return['<svg class="wi" viewBox="0 0 24 24" aria-hidden="true">'+I[k]+'</svg>',t];
 }
 
 // ---------- UI ----------
