@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&family=Cormorant+Garamond:wght@300;400&family=Zen+Maru+Gothic:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
 <style>
 :root{--bg:#000;--fg:#f5f5f7;--sub:rgba(245,245,247,.55);--glass:rgba(255,255,255,.09);--line:rgba(255,255,255,.14);--acc:#f5f5f7;--onacc:#000;--sheet:rgba(40,40,44,.72);--ftxt:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans",sans-serif;--fnum:"Jost","Helvetica Neue",sans-serif;--wn:200;--cs:1;
---spring:cubic-bezier(.2,.9,.25,1.15);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+--spring:cubic-bezier(.2,.9,.25,1.15);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
 [data-theme=light]{--bg:#f2f2f7;--fg:#1c1c1e;--sub:rgba(28,28,30,.5);--glass:rgba(255,255,255,.7);--line:rgba(0,0,0,.08);--acc:#1c1c1e;--onacc:#fff;--sheet:rgba(255,255,255,.8)}
 [data-theme=pink]{--bg:linear-gradient(160deg,#ffe3ee,#ffc2d8);--fg:#5b1a36;--sub:rgba(91,26,54,.55);--glass:rgba(255,255,255,.5);--line:rgba(255,255,255,.7);--acc:#ff4f87;--onacc:#fff;--sheet:rgba(255,240,246,.82)}
 [data-theme=blue]{--bg:linear-gradient(160deg,#0a2a5e,#06142e);--fg:#eaf3ff;--sub:rgba(234,243,255,.6);--glass:rgba(120,180,255,.14);--line:rgba(160,200,255,.22);--acc:#5ac8fa;--onacc:#04132b;--sheet:rgba(10,35,80,.8)}
@@ -25,7 +25,7 @@ html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px);height
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;height:100%;background:var(--bg);color:var(--fg);overflow:hidden;
 font-family:var(--ftxt);user-select:none;-webkit-user-select:none}
-#stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2vmin;padding:46px 16px 12px;
+#stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2vmin;padding:44px 16px calc(env(safe-area-inset-bottom,0px)*.4 + 8px);
 transition:transform 2s ease-in-out}
 #clock{display:flex;align-items:baseline;font-family:var(--fnum);font-weight:var(--wn);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;
 font-size:calc(min(27vw,42vh)*var(--cs));line-height:1;white-space:nowrap}
@@ -42,6 +42,8 @@ animation:in .7s var(--spring) both;overflow:hidden}
 @keyframes in{from{opacity:0;transform:translateY(16px) scale(.94)}}
 .card h4{display:none}.b{display:flex;gap:10px;align-items:baseline;flex:1;min-width:0;justify-content:center}
 .big{font-size:22px;font-weight:300;font-family:var(--fnum)}.sm{font-size:13px;color:var(--sub)}
+.mq{display:flex;width:max-content;font-size:15px;animation:mq 60s linear infinite}.mq span{white-space:nowrap}.mq i{font-style:normal;font-size:6px;opacity:.5;margin:0 1.3em;vertical-align:middle}@keyframes mq{to{transform:translateX(-50%)}}
+.card.n{flex:1 1 100%}.card.n .b{justify-content:flex-start;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
 .news{font-size:15px;overflow:hidden;text-overflow:ellipsis}.b{transition:opacity .5s}
 .cal{display:flex;gap:6px;font-size:13px;color:var(--sub)}.cal .d{padding:2px 7px;border-radius:10px}.cal .t{background:var(--acc);color:var(--onacc);font-weight:600}
 .wr{font-size:13px;color:var(--sub)}.wr span:last-child{color:var(--fg);margin-left:5px;font-variant-numeric:tabular-nums}
@@ -49,25 +51,29 @@ animation:in .7s var(--spring) both;overflow:hidden}
 border:1px solid var(--line);background:var(--glass);color:var(--fg);font-size:17px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
 transition:opacity .5s,transform .5s var(--spring);cursor:pointer}
 body.idle #gear{opacity:0;pointer-events:none;transform:scale(.8)}
+#gear.in{position:static;width:42px;height:auto;align-self:stretch;border-radius:16px;flex:none;opacity:.6}body.idle #gear.in{opacity:.5;pointer-events:auto;transform:none}
+body.gin #stage{padding-top:10px}
+.lt{flex:1;min-width:0;cursor:pointer}
+.seg{display:flex;background:rgba(120,120,128,.25);border-radius:9px;padding:2px;margin:0 12px;flex:none}.seg button{border:0;background:none;color:var(--sub);font-size:13px;padding:4px 11px;border-radius:7px;cursor:pointer;transition:background .3s,color .3s}.seg button.on{background:var(--acc);color:var(--onacc)}
 #dim{position:fixed;inset:0;background:#000;pointer-events:none;opacity:0;transition:opacity .4s}
-#sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:520px;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 18px);
+#sheet{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px)*.4 + 10px);margin:0 auto;max-width:520px;padding:12px 18px 10px;
 background:var(--sheet);-webkit-backdrop-filter:blur(40px) saturate(1.8);backdrop-filter:blur(40px) saturate(1.8);
-border:1px solid var(--line);border-radius:28px 28px 0 0;transform:translateY(105%);transition:transform .6s var(--spring);max-height:85%;overflow:hidden;display:flex;flex-direction:column}
+border:1px solid var(--line);border-radius:28px;transform:translateY(calc(100% + 60px));transition:transform .6s var(--spring);max-height:88%;overflow:hidden;display:flex;flex-direction:column}
 #sb{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;min-height:0}
 #sheet.open{transform:none}
-#sheet h3{flex:none;margin:2px 0 6px;font-size:17px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+#sheet h3{flex:none;margin:0 0 2px;font-size:17px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
 #sheet h3 button{background:none;border:0;color:var(--acc);font-size:17px;font-weight:600;padding:8px 4px 8px 16px;cursor:pointer}
-.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:16px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:16px}
 .row small{display:block;color:var(--sub);font-size:12px;margin-top:2px}
-.sec{font-size:12px;color:var(--sub);letter-spacing:.1em;margin:14px 0 0}
+.sec{font-size:12px;color:var(--sub);letter-spacing:.1em;margin:8px 0 0}
 input[type=checkbox]{appearance:none;-webkit-appearance:none;width:51px;height:31px;border-radius:16px;background:rgba(120,120,128,.4);position:relative;transition:background .3s;flex:none;margin:0}
 input[type=checkbox]::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;transition:transform .45s var(--spring);box-shadow:0 2px 4px rgba(0,0,0,.3)}
 input[type=checkbox]:checked{background:#30d158}input[type=checkbox]:checked::after{transform:translateX(20px)}
 input[type=range]{width:55%;accent-color:var(--acc)}
-.btn{width:100%;margin-top:10px;padding:13px;border-radius:14px;border:0;background:var(--glass);color:var(--fg);font-size:16px;cursor:pointer}
+.btn{width:100%;margin-top:8px;padding:11px;border-radius:14px;border:0;background:var(--glass);color:var(--fg);font-size:16px;cursor:pointer}
 .ctl{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.row.w{align-items:flex-start}
 .sw{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0}.sw.on{box-shadow:0 0 0 2px var(--bg,#000),0 0 0 4px var(--acc)}
-#fonts .ctl{justify-content:flex-start}.fg small{display:block;font-size:12px;color:var(--sub);margin:12px 0 6px}
+#fonts .ctl{justify-content:flex-start}.fg small{display:block;font-size:12px;color:var(--sub);margin:8px 0 4px}
 .pill{padding:6px 12px;border-radius:14px;border:1px solid var(--line);background:none;color:var(--fg);font-size:14px;cursor:pointer}.pill.on{background:var(--acc);color:var(--onacc)}
 @media (max-height:430px){#stage{padding-top:40px}.card{padding:5px 12px}.strip:empty{height:30px}}
 </style>
@@ -86,11 +92,11 @@ input[type=range]{width:55%;accent-color:var(--acc)}
 <div id="sheet" role="dialog">
   <h3>設定<button id="done">完了</button></h3>
   <div id="sb">
-  <p class="sec">ウィジェット</p>
-  <label class="row"><span>天気<small>現在地の天気と気温</small></span><input type="checkbox" data-w="weather"></label>
-  <label class="row"><span>ニュース<small>NHK主要ニュース</small></span><input type="checkbox" data-w="news"></label>
-  <label class="row"><span>カレンダー<small>今月のカレンダー</small></span><input type="checkbox" data-w="cal"></label>
-  <label class="row"><span>世界時計<small>ニューヨーク・ロンドン・パリ</small></span><input type="checkbox" data-w="world"></label>
+  <p class="sec">ウィジェット(表示と上下の位置)</p>
+  <div class="row"><label class="lt" for="w-weather">天気<small>現在地の天気と気温</small></label><div class="seg" data-p="weather"><button data-v="top">上</button><button data-v="bottom">下</button></div><input id="w-weather" type="checkbox" data-w="weather"></div>
+  <div class="row"><label class="lt" for="w-news">ニュース<small>NHK主要ニュース</small></label><div class="seg" data-p="news"><button data-v="top">上</button><button data-v="bottom">下</button></div><input id="w-news" type="checkbox" data-w="news"></div>
+  <div class="row"><label class="lt" for="w-cal">カレンダー<small>今月のカレンダー</small></label><div class="seg" data-p="cal"><button data-v="top">上</button><button data-v="bottom">下</button></div><input id="w-cal" type="checkbox" data-w="cal"></div>
+  <div class="row"><label class="lt" for="w-world">世界時計<small>ニューヨーク・ロンドン・パリ</small></label><div class="seg" data-p="world"><button data-v="top">上</button><button data-v="bottom">下</button></div><input id="w-world" type="checkbox" data-w="world"></div>
   <p class="sec">表示</p>
   <label class="row"><span>24時間表示</span><input type="checkbox" data-o="h24"></label>
   <label class="row"><span>秒を表示</span><input type="checkbox" data-o="sec"></label>
@@ -120,8 +126,8 @@ function icon(n){
 try{document.getElementById('ati').href=icon(180);document.getElementById('fav').href=icon(64);}catch(e){}
 
 // ---------- 設定 ----------
-var D={theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false}};
-try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
+var D={pos:{weather:'top',cal:'top',world:'top',news:'bottom'},theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false}};
+try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.pos=Object.assign(D.pos,sv.pos||{});D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
 function save(){try{localStorage.setItem('okidokei',JSON.stringify(D));}catch(e){}}
 var $=function(i){return document.getElementById(i)};
 var wd=['日','月','火','水','木','金','土'];
@@ -143,14 +149,22 @@ setInterval(tick,1000);
 
 // ---------- ウィジェット ----------
 var WT=$('wt'),WB=$('wb'),els={};
-function card(k,title){var e=document.createElement('div');e.className='card';e.innerHTML='<h4>'+title+'</h4><div class="b"></div>';els[k]=e;return e;}
+function card(k,title){var e=document.createElement('div');e.className='card'+(k==='news'?' n':'');e.innerHTML='<h4>'+title+'</h4><div class="b"></div>';els[k]=e;return e;}
 function body(k){return els[k].querySelector('.b');}
 function syncW(){
   [['weather','天気'],['news','ニュース'],['cal','カレンダー'],['world','世界時計']].forEach(function(p){
-    var k=p[0];
-    if(D.w[k]&&!els[k]){(k==='news'?WB:WT).appendChild(card(k,p[1]));init[k]();}
+    var k=p[0],t=D.pos[k]==='bottom'?WB:WT;
+    if(D.w[k]&&!els[k]){t.appendChild(card(k,p[1]));init[k]();}
+    else if(D.w[k]&&els[k].parentNode!==t)t.appendChild(els[k]);
     if(!D.w[k]&&els[k]){els[k].remove();delete els[k];}
   });
+  placeGear();
+}
+function placeGear(){
+  var g=$('gear'),has=WT.querySelector('.card');
+  if(has){WT.appendChild(g);g.classList.add('in');}
+  else{if(g.parentNode!==document.body)document.body.appendChild(g);g.classList.remove('in');}
+  document.body.classList.toggle('gin',!!has);
 }
 var timers={};
 var init={
@@ -170,14 +184,14 @@ var init={
   },
   news:function(){
     body('news').innerHTML='<div class="sm">取得中…</div>';
-    var items=[],i=0;
-    function show(){if(!els.news||!items.length)return;var b=body('news');b.style.opacity=0;setTimeout(function(){if(!els.news)return;b.innerHTML='<div class="news">'+esc(items[i%items.length])+'</div>';b.style.opacity=1;i++;},400);}
     function load(){
       fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent('https://www3.nhk.or.jp/rss/news/cat0.xml')).then(function(r){return r.json()}).then(function(j){
-        items=(j.items||[]).slice(0,10).map(function(x){return x.title});if(items.length)show();else throw 0;
+        var t=(j.items||[]).slice(0,10).map(function(x){return x.title});if(!t.length)throw 0;if(!els.news)return;
+        var line=t.map(esc).join('<i>●</i>')+'<i>●</i>';
+        body('news').innerHTML='<div class="mq" style="animation-duration:'+Math.max(30,Math.round(t.join('').length*.25))+'s"><span>'+line+'</span><span>'+line+'</span></div>';
       }).catch(function(){if(els.news)body('news').innerHTML='<div class="sm">ニュースを取得できません</div>';});
     }
-    load();timers.news=setInterval(function(){if(els.news)show();},9000);timers.news2=setInterval(function(){if(els.news)load();},1200000);
+    load();timers.news2=setInterval(function(){if(els.news)load();},1200000);
   },
   cal:function(){buildCal();},
   world:function(){body('world').innerHTML=[['NY','America/New_York'],['ロンドン','Europe/London'],['パリ','Europe/Paris']].map(function(z){return '<div class="wr"><span>'+z[0]+'</span><span data-tz="'+z[1]+'"></span></div>'}).join('');updWorld();}
@@ -242,6 +256,11 @@ FL.forEach(function(g){var w=document.createElement('div');w.className='fg';w.in
   $('fonts').appendChild(w);});
 if(D.font!=='jost')loadFonts();
 look();
+document.querySelectorAll('.seg').forEach(function(sg){var k=sg.dataset.p;
+  function mark(){sg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.v===D.pos[k])});}
+  mark();
+  sg.querySelectorAll('button').forEach(function(b){b.onclick=function(){D.pos[k]=b.dataset.v;save();mark();syncW();};});
+});
 syncW();tick();wake();
 })();
 </script>
