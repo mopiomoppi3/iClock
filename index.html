@@ -26,14 +26,16 @@ html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px);height
 button,input{font-family:inherit}
 body{margin:0;height:100%;background:var(--bg);color:var(--fg);overflow:hidden;
 font-family:var(--ftxt);user-select:none;-webkit-user-select:none}
-#stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2vmin;padding:44px max(18px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px)*.4 + 14px) max(18px,env(safe-area-inset-left));
+#stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2vmin;padding:44px max(18px,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px)) calc(env(safe-area-inset-bottom,0px)*.4 + 14px);
 transition:transform 2s ease-in-out}
-#clock{display:flex;align-items:baseline;font-family:var(--fnum);font-weight:var(--wn);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;
+#clock{position:relative;display:flex;align-items:baseline;font-family:var(--fnum);font-weight:var(--wn);font-variant-numeric:lining-nums tabular-nums;letter-spacing:0;
 font-size:calc(min(27vw,42vh)*var(--cs));line-height:1;white-space:nowrap}
 #clock .c{opacity:.9;margin:0 .02em;position:relative;top:-.06em;animation:b 2s ease-in-out infinite}
 @keyframes b{50%{opacity:.25}}
-#sec{font-size:.26em;margin-left:.12em;color:var(--sub);font-weight:300;min-width:1.2em}
-#ap{font-size:.2em;margin-right:.2em;color:var(--sub);font-weight:400}
+#sec{margin-left:.4em;font-size:.26em;color:var(--sub);font-weight:300}
+.dg{display:inline-block;width:var(--dw,.6em);text-align:center;font-weight:inherit;letter-spacing:0}
+#sec:empty,#ap:empty{display:none}
+#ap{margin-right:.5em;font-size:.2em;color:var(--sub);font-weight:400;white-space:nowrap}
 #mid{display:flex;flex-direction:column;align-items:center;gap:1.5vmin}
 #date{font-family:var(--fd,var(--ftxt));font-size:min(5vw,3.6vh);color:var(--sub);letter-spacing:.12em;font-weight:400}
 .strip{display:flex;flex-wrap:wrap;gap:8px;width:min(920px,100%);justify-content:center}.strip:empty{visibility:hidden;height:40px}
@@ -139,12 +141,20 @@ var wd=['日','月','火','水','木','金','土'];
 
 // ---------- 時計 ----------
 var last='';
+function setN(id,v){var e=$(id);if(e._v===v)return;e._v=v;e.innerHTML=v.split('').map(function(c){return '<b class="dg">'+c+'</b>'}).join('');}
+var mctx=document.createElement('canvas').getContext('2d');
+function measureDW(){
+  try{var cs=getComputedStyle($('clock')),m=0;mctx.font=cs.fontWeight+' 100px '+cs.fontFamily;
+  for(var i=0;i<10;i++)m=Math.max(m,mctx.measureText(String(i)).width);
+  if(m>0)$('clock').style.setProperty('--dw',(m/100).toFixed(3)+'em');}catch(e){}
+}
+if(document.fonts){document.fonts.addEventListener('loadingdone',measureDW);document.fonts.ready.then(measureDW);}
 function tick(){
   var d=new Date(),h=d.getHours(),ap='';
   if(!D.h24){ap=h<12?'午前':'午後';h=h%12||12;}
   var hs=D.h24?String(h).padStart(2,'0'):String(h);
-  $('ap').textContent=ap;$('hh').textContent=hs;$('mm').textContent=String(d.getMinutes()).padStart(2,'0');
-  $('sec').textContent=D.sec?String(d.getSeconds()).padStart(2,'0'):'';
+  $('ap').textContent=ap;setN('hh',hs);setN('mm',String(d.getMinutes()).padStart(2,'0'));
+  setN('sec',D.sec?String(d.getSeconds()).padStart(2,'0'):'');
   var ds=(d.getMonth()+1)+'月'+d.getDate()+'日 '+wd[d.getDay()]+'曜日';
   if(ds!==last){last=ds;$('date').textContent=ds;buildCal();}
   if(!D.shift)$('stage').style.transform='';
@@ -270,6 +280,7 @@ function look(){
   var m=document.querySelector('meta[name=theme-color]');if(m)m.content=TH[D.theme][1];
   document.querySelectorAll('.sw').forEach(function(b){b.classList.toggle('on',b.dataset.t===D.theme)});
   document.querySelectorAll('.pill').forEach(function(b){b.classList.toggle('on',b.dataset.f===D.font)});
+  measureDW();
 }
 Object.keys(TH).forEach(function(t){var b=document.createElement('button');b.className='sw';b.dataset.t=t;b.setAttribute('aria-label',t);b.style.background=TH[t][0];b.onclick=function(){D.theme=t;save();look();};$('themes').appendChild(b);});
 FL.forEach(function(g){var w=document.createElement('div');w.className='fg';w.innerHTML='<small>'+g[0]+'</small><div class="ctl"></div>';
