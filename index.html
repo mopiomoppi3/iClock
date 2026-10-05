@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="置時計">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark light">
+<title>置時計</title>
+<link rel="icon" id="fav" href="data:,">
+<link rel="apple-touch-icon" id="ati" sizes="180x180" href="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400&family=Cormorant+Garamond:wght@300;400&family=Zen+Maru+Gothic:wght@300;400;500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
+<style>
+:root{--bg:#000;--fg:#f5f5f7;--sub:rgba(245,245,247,.55);--glass:rgba(255,255,255,.09);--line:rgba(255,255,255,.14);--acc:#f5f5f7;--onacc:#000;--sheet:rgba(40,40,44,.72);--ftxt:"Zen Kaku Gothic New",-apple-system,"Hiragino Sans",sans-serif;--fnum:"Jost","Helvetica Neue",sans-serif;--wn:200;--cs:1;
+--spring:cubic-bezier(.2,.9,.25,1.15);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[data-theme=light]{--bg:#f2f2f7;--fg:#1c1c1e;--sub:rgba(28,28,30,.5);--glass:rgba(255,255,255,.7);--line:rgba(0,0,0,.08);--acc:#1c1c1e;--onacc:#fff;--sheet:rgba(255,255,255,.8)}
+[data-theme=pink]{--bg:linear-gradient(160deg,#ffe3ee,#ffc2d8);--fg:#5b1a36;--sub:rgba(91,26,54,.55);--glass:rgba(255,255,255,.5);--line:rgba(255,255,255,.7);--acc:#ff4f87;--onacc:#fff;--sheet:rgba(255,240,246,.82)}
+[data-theme=blue]{--bg:linear-gradient(160deg,#0a2a5e,#06142e);--fg:#eaf3ff;--sub:rgba(234,243,255,.6);--glass:rgba(120,180,255,.14);--line:rgba(160,200,255,.22);--acc:#5ac8fa;--onacc:#04132b;--sheet:rgba(10,35,80,.8)}
+[data-theme=mint]{--bg:linear-gradient(160deg,#d9f7ea,#a8e6cf);--fg:#123d2d;--sub:rgba(18,61,45,.55);--glass:rgba(255,255,255,.5);--line:rgba(255,255,255,.7);--acc:#1fa971;--onacc:#fff;--sheet:rgba(236,252,245,.82)}
+[data-theme=purple]{--bg:linear-gradient(160deg,#2a1450,#120726);--fg:#f1e9ff;--sub:rgba(241,233,255,.6);--glass:rgba(190,150,255,.14);--line:rgba(200,170,255,.22);--acc:#c79bff;--onacc:#180a30;--sheet:rgba(40,20,80,.8)}
+html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;height:100%;background:var(--bg);color:var(--fg);overflow:hidden;
+font-family:var(--ftxt);user-select:none;-webkit-user-select:none}
+#stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2vmin;padding:46px 16px 12px;
+transition:transform 2s ease-in-out}
+#clock{display:flex;align-items:baseline;font-family:var(--fnum);font-weight:var(--wn);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;
+font-size:calc(min(27vw,42vh)*var(--cs));line-height:1;white-space:nowrap}
+#clock .c{opacity:.9;margin:0 .02em;position:relative;top:-.06em;animation:b 2s ease-in-out infinite}
+@keyframes b{50%{opacity:.25}}
+#sec{font-size:.26em;margin-left:.12em;color:var(--sub);font-weight:300;min-width:1.2em}
+#ap{font-size:.2em;margin-right:.2em;color:var(--sub);font-weight:400}
+#mid{display:flex;flex-direction:column;align-items:center;gap:1.5vmin}
+#date{font-family:var(--fd,var(--ftxt));font-size:min(5vw,3.6vh);color:var(--sub);letter-spacing:.12em;font-weight:400}
+.strip{display:flex;flex-wrap:wrap;gap:8px;width:min(920px,100%);justify-content:center}.strip:empty{visibility:hidden;height:40px}
+.card{background:var(--glass);border:1px solid var(--line);border-radius:16px;padding:8px 14px;min-height:0;flex:1 1 auto;display:flex;align-items:center;min-width:0;white-space:nowrap;
+-webkit-backdrop-filter:blur(30px) saturate(1.6);backdrop-filter:blur(30px) saturate(1.6);
+animation:in .7s var(--spring) both;overflow:hidden}
+@keyframes in{from{opacity:0;transform:translateY(16px) scale(.94)}}
+.card h4{display:none}.b{display:flex;gap:10px;align-items:baseline;flex:1;min-width:0;justify-content:center}
+.big{font-size:22px;font-weight:300;font-family:var(--fnum)}.sm{font-size:13px;color:var(--sub)}
+.news{font-size:15px;overflow:hidden;text-overflow:ellipsis}.b{transition:opacity .5s}
+.cal{display:flex;gap:6px;font-size:13px;color:var(--sub)}.cal .d{padding:2px 7px;border-radius:10px}.cal .t{background:var(--acc);color:var(--onacc);font-weight:600}
+.wr{font-size:13px;color:var(--sub)}.wr span:last-child{color:var(--fg);margin-left:5px;font-variant-numeric:tabular-nums}
+#gear{position:fixed;right:max(16px,env(safe-area-inset-right));top:calc(env(safe-area-inset-top,0px) + 6px);width:36px;height:36px;border-radius:50%;
+border:1px solid var(--line);background:var(--glass);color:var(--fg);font-size:17px;-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+transition:opacity .5s,transform .5s var(--spring);cursor:pointer}
+body.idle #gear{opacity:0;pointer-events:none;transform:scale(.8)}
+#dim{position:fixed;inset:0;background:#000;pointer-events:none;opacity:0;transition:opacity .4s}
+#sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:520px;padding:18px 18px calc(env(safe-area-inset-bottom,0px) + 18px);
+background:var(--sheet);-webkit-backdrop-filter:blur(40px) saturate(1.8);backdrop-filter:blur(40px) saturate(1.8);
+border:1px solid var(--line);border-radius:28px 28px 0 0;transform:translateY(105%);transition:transform .6s var(--spring);max-height:85%;overflow:hidden;display:flex;flex-direction:column}
+#sb{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;min-height:0}
+#sheet.open{transform:none}
+#sheet h3{flex:none;margin:2px 0 6px;font-size:17px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+#sheet h3 button{background:none;border:0;color:var(--acc);font-size:17px;font-weight:600;padding:8px 4px 8px 16px;cursor:pointer}
+.row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--line);font-size:16px}
+.row small{display:block;color:var(--sub);font-size:12px;margin-top:2px}
+.sec{font-size:12px;color:var(--sub);letter-spacing:.1em;margin:14px 0 0}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;width:51px;height:31px;border-radius:16px;background:rgba(120,120,128,.4);position:relative;transition:background .3s;flex:none;margin:0}
+input[type=checkbox]::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;transition:transform .45s var(--spring);box-shadow:0 2px 4px rgba(0,0,0,.3)}
+input[type=checkbox]:checked{background:#30d158}input[type=checkbox]:checked::after{transform:translateX(20px)}
+input[type=range]{width:55%;accent-color:var(--acc)}
+.btn{width:100%;margin-top:10px;padding:13px;border-radius:14px;border:0;background:var(--glass);color:var(--fg);font-size:16px;cursor:pointer}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.row.w{align-items:flex-start}
+.sw{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0}.sw.on{box-shadow:0 0 0 2px var(--bg,#000),0 0 0 4px var(--acc)}
+#fonts .ctl{justify-content:flex-start}.fg small{display:block;font-size:12px;color:var(--sub);margin:12px 0 6px}
+.pill{padding:6px 12px;border-radius:14px;border:1px solid var(--line);background:none;color:var(--fg);font-size:14px;cursor:pointer}.pill.on{background:var(--acc);color:var(--onacc)}
+@media (max-height:430px){#stage{padding-top:40px}.card{padding:5px 12px}.strip:empty{height:30px}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wt" class="strip"></div>
+  <div id="mid">
+  <div id="clock"><span id="ap"></span><span id="hh">00</span><span class="c">:</span><span id="mm">00</span><span id="sec"></span></div>
+  <div id="date"></div>
+  </div>
+  <div id="wb" class="strip"></div>
+</div>
+<button id="gear" aria-label="設定">⚙︎</button>
+<div id="dim"></div>
+<div id="sheet" role="dialog">
+  <h3>設定<button id="done">完了</button></h3>
+  <div id="sb">
+  <p class="sec">ウィジェット</p>
+  <label class="row"><span>天気<small>現在地の天気と気温</small></span><input type="checkbox" data-w="weather"></label>
+  <label class="row"><span>ニュース<small>NHK主要ニュース</small></span><input type="checkbox" data-w="news"></label>
+  <label class="row"><span>カレンダー<small>今月のカレンダー</small></span><input type="checkbox" data-w="cal"></label>
+  <label class="row"><span>世界時計<small>ニューヨーク・ロンドン・パリ</small></span><input type="checkbox" data-w="world"></label>
+  <p class="sec">表示</p>
+  <label class="row"><span>24時間表示</span><input type="checkbox" data-o="h24"></label>
+  <label class="row"><span>秒を表示</span><input type="checkbox" data-o="sec"></label>
+  <div class="row w"><span>テーマ</span><div class="ctl" id="themes"></div></div>
+  <p class="sec">フォント</p><div id="fonts"></div>
+  <div class="row"><span>明るさ</span><input type="range" id="br" min="0" max="85" value="0"></div>
+  <button class="btn" id="fs">全画面にする</button>
+  </div>
+</div>
+<script>
+(function(){
+// ---------- アイコン生成 (ホーム画面用 apple-touch-icon / favicon) ----------
+function icon(n){
+  var c=document.createElement('canvas');c.width=c.height=n;var g=c.getContext('2d'),s=n/180;
+  var bg=g.createLinearGradient(0,0,0,n);bg.addColorStop(0,'#2c2c2e');bg.addColorStop(1,'#000');
+  g.fillStyle=bg;g.fillRect(0,0,n,n);
+  g.save();g.translate(n/2,n/2);g.scale(s,s);
+  g.strokeStyle='rgba(255,255,255,.9)';g.lineWidth=5;g.lineCap='round';
+  for(var i=0;i<12;i++){g.save();g.rotate(i*Math.PI/6);g.beginPath();g.moveTo(0,-66);g.lineTo(0,i%3?-60:-54);g.globalAlpha=i%3?.45:1;g.stroke();g.restore();}
+  g.globalAlpha=1;g.lineWidth=8;
+  g.save();g.rotate(Math.PI*2*(10/12+10/720));g.beginPath();g.moveTo(0,6);g.lineTo(0,-38);g.stroke();g.restore();
+  g.lineWidth=6;g.save();g.rotate(Math.PI*2*(10/60));g.beginPath();g.moveTo(0,8);g.lineTo(0,-56);g.stroke();g.restore();
+  g.strokeStyle='#ff9f0a';g.lineWidth=3;g.save();g.rotate(Math.PI*2*(50/60)*0+Math.PI*1.1);g.beginPath();g.moveTo(0,14);g.lineTo(0,-60);g.stroke();g.restore();
+  g.fillStyle='#ff9f0a';g.beginPath();g.arc(0,0,6,0,7);g.fill();
+  g.restore();return c.toDataURL('image/png');
+}
+try{document.getElementById('ati').href=icon(180);document.getElementById('fav').href=icon(64);}catch(e){}
+
+// ---------- 設定 ----------
+var D={theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false}};
+try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
+function save(){try{localStorage.setItem('okidokei',JSON.stringify(D));}catch(e){}}
+var $=function(i){return document.getElementById(i)};
+var wd=['日','月','火','水','木','金','土'];
+
+// ---------- 時計 ----------
+var last='';
+function tick(){
+  var d=new Date(),h=d.getHours(),ap='';
+  if(!D.h24){ap=h<12?'午前':'午後';h=h%12||12;}
+  var hs=D.h24?String(h).padStart(2,'0'):String(h);
+  $('ap').textContent=ap;$('hh').textContent=hs;$('mm').textContent=String(d.getMinutes()).padStart(2,'0');
+  $('sec').textContent=D.sec?String(d.getSeconds()).padStart(2,'0'):'';
+  var ds=(d.getMonth()+1)+'月'+d.getDate()+'日 '+wd[d.getDay()]+'曜日';
+  if(ds!==last){last=ds;$('date').textContent=ds;buildCal();}
+  if(d.getSeconds()===0){var a=(d.getMinutes()%2?1:-1)*6;$('stage').style.transform='translate('+a+'px,'+(-a/2)+'px)';} // 焼き付き防止
+  updWorld();
+}
+setInterval(tick,1000);
+
+// ---------- ウィジェット ----------
+var WT=$('wt'),WB=$('wb'),els={};
+function card(k,title){var e=document.createElement('div');e.className='card';e.innerHTML='<h4>'+title+'</h4><div class="b"></div>';els[k]=e;return e;}
+function body(k){return els[k].querySelector('.b');}
+function syncW(){
+  [['weather','天気'],['news','ニュース'],['cal','カレンダー'],['world','世界時計']].forEach(function(p){
+    var k=p[0];
+    if(D.w[k]&&!els[k]){(k==='news'?WB:WT).appendChild(card(k,p[1]));init[k]();}
+    if(!D.w[k]&&els[k]){els[k].remove();delete els[k];}
+  });
+}
+var timers={};
+var init={
+  weather:function(){
+    body('weather').innerHTML='<div class="sm">取得中…</div>';
+    function go(lat,lon,label){
+      var u='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto';
+      fetch(u).then(function(r){return r.json()}).then(function(j){
+        if(!els.weather)return;var c=j.current,dl=j.daily,m=wmo(c.weather_code);
+        body('weather').innerHTML='<span class="big">'+m[0]+' '+Math.round(c.temperature_2m)+'°</span><span class="sm">'+m[1]+' ・ '+Math.round(dl.temperature_2m_max[0])+'° / '+Math.round(dl.temperature_2m_min[0])+'° ・ 降水'+dl.precipitation_probability_max[0]+'%</span>';
+      }).catch(function(){if(els.weather)body('weather').innerHTML='<div class="sm">天気を取得できません</div>';});
+    }
+    var run=function(){
+      if(navigator.geolocation)navigator.geolocation.getCurrentPosition(function(p){go(p.coords.latitude.toFixed(2),p.coords.longitude.toFixed(2));},function(){go(35.68,139.76);},{timeout:8000});
+      else go(35.68,139.76);
+    };run();timers.weather=setInterval(function(){if(els.weather)run();},900000);
+  },
+  news:function(){
+    body('news').innerHTML='<div class="sm">取得中…</div>';
+    var items=[],i=0;
+    function show(){if(!els.news||!items.length)return;var b=body('news');b.style.opacity=0;setTimeout(function(){if(!els.news)return;b.innerHTML='<div class="news">'+esc(items[i%items.length])+'</div>';b.style.opacity=1;i++;},400);}
+    function load(){
+      fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent('https://www3.nhk.or.jp/rss/news/cat0.xml')).then(function(r){return r.json()}).then(function(j){
+        items=(j.items||[]).slice(0,10).map(function(x){return x.title});if(items.length)show();else throw 0;
+      }).catch(function(){if(els.news)body('news').innerHTML='<div class="sm">ニュースを取得できません</div>';});
+    }
+    load();timers.news=setInterval(function(){if(els.news)show();},9000);timers.news2=setInterval(function(){if(els.news)load();},1200000);
+  },
+  cal:function(){buildCal();},
+  world:function(){body('world').innerHTML=[['NY','America/New_York'],['ロンドン','Europe/London'],['パリ','Europe/Paris']].map(function(z){return '<div class="wr"><span>'+z[0]+'</span><span data-tz="'+z[1]+'"></span></div>'}).join('');updWorld();}
+};
+function updWorld(){
+  if(!els.world)return;
+  els.world.querySelectorAll('[data-tz]').forEach(function(s){
+    try{s.textContent=new Intl.DateTimeFormat('ja-JP',{timeZone:s.dataset.tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());}catch(e){}
+  });
+}
+function buildCal(){
+  if(!els.cal)return;var d=new Date(),h='';
+  for(var i=0;i<7;i++){var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()-d.getDay()+i);h+='<span class="d'+(x.getDate()===d.getDate()?' t':'')+'">'+wd[x.getDay()]+' '+x.getDate()+'</span>';}
+  body('cal').innerHTML='<div class="cal">'+h+'</div>';
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function wmo(c){
+  if(c===0)return['☀️','快晴'];if(c<=2)return['🌤️','晴れ'];if(c===3)return['☁️','くもり'];if(c<=48)return['🌫️','霧'];
+  if(c<=57)return['🌦️','霧雨'];if(c<=67)return['🌧️','雨'];if(c<=77)return['🌨️','雪'];if(c<=82)return['🌦️','にわか雨'];if(c<=86)return['🌨️','にわか雪'];return['⛈️','雷雨'];
+}
+
+// ---------- UI ----------
+var sh=$('sheet'),idle;
+function wake(){document.body.classList.remove('idle');clearTimeout(idle);idle=setTimeout(function(){if(!sh.classList.contains('open'))document.body.classList.add('idle');},4000);}
+['pointerdown','pointermove','keydown'].forEach(function(e){document.addEventListener(e,wake,{passive:true})});
+$('gear').onclick=function(){loadFonts();sh.classList.add('open')};
+$('done').onclick=function(){sh.classList.remove('open');wake();};
+document.querySelectorAll('[data-w]').forEach(function(c){c.checked=!!D.w[c.dataset.w];c.onchange=function(){D.w[c.dataset.w]=c.checked;save();syncW();};});
+document.querySelectorAll('[data-o]').forEach(function(c){c.checked=!!D[c.dataset.o];c.onchange=function(){D[c.dataset.o]=c.checked;save();tick();};});
+$('br').value=D.br;function applyBr(){$('dim').style.opacity=D.br/100;}applyBr();
+$('br').oninput=function(){D.br=+this.value;applyBr();save();};
+$('fs').onclick=function(){var e=document.documentElement;try{(e.requestFullscreen||e.webkitRequestFullscreen).call(e);}catch(x){}sh.classList.remove('open');};
+if(!(document.documentElement.requestFullscreen||document.documentElement.webkitRequestFullscreen))$('fs').style.display='none';
+
+// 画面スリープ防止
+var lock=null;
+function keepAwake(){try{if('wakeLock' in navigator)navigator.wakeLock.request('screen').then(function(l){lock=l;}).catch(function(){});}catch(e){}}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')keepAwake();});
+document.addEventListener('pointerdown',function f(){keepAwake();document.removeEventListener('pointerdown',f);});
+keepAwake();
+
+var TH={dark:['#1c1c1e','#000'],light:['#f2f2f7','#f2f2f7'],pink:['#ff9ec0','#ffc2d8'],blue:['#0a3a82','#06142e'],mint:['#8fe0bf','#a8e6cf'],purple:['#6b3fb8','#120726']};
+var FL=[
+['エレガント',[['jost','Jost','Jost','Jost:wght@200',200,1],['poiret','Poiret One','Poiret One','Poiret+One',400,1.05],['italiana','Italiana','Italiana','Italiana',400,1.05],['cormorant','Cormorant','Cormorant Garamond','Cormorant+Garamond:wght@300;400',300,1.15],['playfair','Playfair','Playfair Display','Playfair+Display:wght@400',400,.95],['bodoni','Bodoni','Bodoni Moda','Bodoni+Moda:wght@400',400,1]]],
+['かわいい',[['fredoka','Fredoka','Fredoka','Fredoka:wght@300;400',300,1],['comfortaa','Comfortaa','Comfortaa','Comfortaa:wght@300;400',300,.95],['maru','やわらか','Zen Maru Gothic','Zen+Maru+Gothic:wght@300;400;500',300,.95,1],['kiwi','キウイまる','Kiwi Maru','Kiwi+Maru:wght@300;400',300,1,1],['hachi','はちまる','Hachi Maru Pop','Hachi+Maru+Pop',400,.95,1],['potta','ポッタ','Potta One','Potta+One',400,.95,1]]],
+['手書き',[['caveat','Caveat','Caveat','Caveat:wght@400',400,1.25],['shadows','Shadows','Shadows Into Light','Shadows+Into+Light',400,1.15],['dancing','Dancing','Dancing Script','Dancing+Script',400,1.1],['pacifico','Pacifico','Pacifico','Pacifico',400,.8],['yomogi','よもぎ','Yomogi','Yomogi',400,1,1],['kurenai','くれない','Zen Kurenaido','Zen+Kurenaido',400,1,1],['yusei','ゆうせい','Yusei Magic','Yusei+Magic',400,1,1],['klee','クレー','Klee One','Klee+One',400,1,1]]],
+['テック・ポップ',[['orbitron','Orbitron','Orbitron','Orbitron:wght@400',400,.72],['major','Major Mono','Major Mono Display','Major+Mono+Display',400,.78],['syncopate','Syncopate','Syncopate','Syncopate:wght@400',400,.7],['dot','ドット','DotGothic16','DotGothic16',400,.9,1],['dela','デラ','Dela Gothic One','Dela+Gothic+One',400,.75,1],['reggae','レゲエ','Reggae One','Reggae+One',400,.85,1],['rock','ロックンロール','RocknRoll One','RocknRoll+One',400,.9,1]]]];
+var FD={},ALL=[],loaded=false;
+FL.forEach(function(g){g[1].forEach(function(f){FD[f[0]]={n:f[1],f:f[2],w:f[4],s:f[5],j:f[6]};ALL.push(f[3]);});});
+function loadFonts(){if(loaded)return;loaded=true;var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family='+ALL.join('&family=')+'&display=swap';document.head.appendChild(l);}
+function look(){
+  var h=document.documentElement,F=FD[D.font]||FD.jost;h.dataset.theme=D.theme;
+  h.style.setProperty('--fnum','"'+F.f+'","Helvetica Neue",sans-serif');h.style.setProperty('--wn',F.w);h.style.setProperty('--cs',F.s);
+  if(F.j)h.style.setProperty('--fd','"'+F.f+'",sans-serif');else h.style.removeProperty('--fd');
+  var m=document.querySelector('meta[name=theme-color]');if(m)m.content=TH[D.theme][1];
+  document.querySelectorAll('.sw').forEach(function(b){b.classList.toggle('on',b.dataset.t===D.theme)});
+  document.querySelectorAll('.pill').forEach(function(b){b.classList.toggle('on',b.dataset.f===D.font)});
+}
+Object.keys(TH).forEach(function(t){var b=document.createElement('button');b.className='sw';b.dataset.t=t;b.setAttribute('aria-label',t);b.style.background=TH[t][0];b.onclick=function(){D.theme=t;save();look();};$('themes').appendChild(b);});
+FL.forEach(function(g){var w=document.createElement('div');w.className='fg';w.innerHTML='<small>'+g[0]+'</small><div class="ctl"></div>';
+  g[1].forEach(function(f){var b=document.createElement('button');b.className='pill';b.dataset.f=f[0];b.textContent=f[1];b.style.fontFamily='"'+f[2]+'",sans-serif';b.onclick=function(){D.font=f[0];save();look();};w.lastChild.appendChild(b);});
+  $('fonts').appendChild(w);});
+if(D.font!=='jost')loadFonts();
+look();
+syncW();tick();wake();
+})();
+</script>
+</body>
+</html>
