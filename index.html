@@ -25,7 +25,7 @@ html{background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px);height
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;height:100%;background:var(--bg);color:var(--fg);overflow:hidden;
 font-family:var(--ftxt);user-select:none;-webkit-user-select:none}
-#stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2vmin;padding:44px 16px calc(env(safe-area-inset-bottom,0px)*.4 + 8px);
+#stage{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:2vmin;padding:44px max(18px,env(safe-area-inset-right)) calc(env(safe-area-inset-bottom,0px)*.4 + 14px) max(18px,env(safe-area-inset-left));
 transition:transform 2s ease-in-out}
 #clock{display:flex;align-items:baseline;font-family:var(--fnum);font-weight:var(--wn);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.02em;
 font-size:calc(min(27vw,42vh)*var(--cs));line-height:1;white-space:nowrap}
@@ -52,7 +52,7 @@ border:1px solid var(--line);background:var(--glass);color:var(--fg);font-size:1
 transition:opacity .5s,transform .5s var(--spring);cursor:pointer}
 body.idle #gear{opacity:0;pointer-events:none;transform:scale(.8)}
 #gear.in{position:static;width:42px;height:auto;align-self:stretch;border-radius:16px;flex:none;opacity:.6}body.idle #gear.in{opacity:.5;pointer-events:auto;transform:none}
-body.gin #stage{padding-top:10px}
+body.gin #stage{padding-top:18px}
 .lt{flex:1;min-width:0;cursor:pointer}
 .seg{display:flex;background:rgba(120,120,128,.25);border-radius:9px;padding:2px;margin:0 12px;flex:none}.seg button{border:0;background:none;color:var(--sub);font-size:13px;padding:4px 11px;border-radius:7px;cursor:pointer;transition:background .3s,color .3s}.seg button.on{background:var(--acc);color:var(--onacc)}
 #dim{position:fixed;inset:0;background:#000;pointer-events:none;opacity:0;transition:opacity .4s}
