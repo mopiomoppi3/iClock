@@ -62,7 +62,8 @@ animation:in .7s var(--spring) both;overflow:hidden}
 .cb:active{transform:scale(.85);background:var(--glass)}.cb svg{width:18px;height:18px;fill:currentColor;stroke:currentColor;stroke-width:1.2;stroke-linejoin:round}
 .card.big{flex:1 1 100%;border-radius:32px;padding:14px 22px}
 .bg{display:flex;gap:18px;align-items:center;width:100%;min-width:0}
-.art.big{width:104px;height:104px;border-radius:22px;animation:none;flex:none}
+.art.big{width:104px;height:104px;flex:none}
+[data-arot=off] .art{animation:none}[data-ashape=square] .art{border-radius:8px}[data-ashape=square] .art.big{border-radius:22px}
 .bt{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;white-space:normal;text-align:left}
 .bt .mt{font-size:20px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .bt .ma{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -101,7 +102,7 @@ input[type=range]{width:55%;accent-color:var(--acc)}
 .sw{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);cursor:pointer;padding:0}.sw.on{box-shadow:0 0 0 2px var(--bg,#000),0 0 0 4px var(--acc)}
 #fonts .ctl{justify-content:flex-start}.fg small{display:block;font-size:12px;color:var(--sub);margin:8px 0 4px}
 .pill{padding:6px 12px;border-radius:14px;border:1px solid var(--line);background:none;color:var(--fg);font-size:14px;cursor:pointer}.pill.on{background:var(--acc);color:var(--onacc)}
-@media (max-height:430px){.art.big{width:72px;height:72px;border-radius:16px}.card.big{padding:10px 18px}.card.big .cb{width:42px;height:42px}.bt .mt{font-size:17px}#stage{padding-top:40px}:root{--bh:34px}.card{padding:5px 18px}.strip:empty{height:30px}}
+@media (max-height:430px){.art.big{width:72px;height:72px}[data-ashape=square] .art.big{border-radius:16px}.card.big{padding:10px 18px}.card.big .cb{width:42px;height:42px}.bt .mt{font-size:17px}#stage{padding-top:40px}:root{--bh:34px}.card{padding:5px 18px}.strip:empty{height:30px}}
 </style>
 </head>
 <body>
@@ -137,11 +138,16 @@ input[type=range]{width:55%;accent-color:var(--acc)}
   <label class="row"><span>24時間表示</span><input type="checkbox" data-o="h24"></label>
   <label class="row"><span>秒を表示</span><input type="checkbox" data-o="sec"></label>
   <label class="row"><span>焼き付き防止<small>1分ごとに表示を少しずらします</small></span><input type="checkbox" data-o="shift"></label>
+  <label class="row"><span>ジャケットを回転</span><input type="checkbox" data-o="arot"></label>
+  <div class="row"><span>ジャケットの形</span><div class="seg" id="ashape" style="margin-right:0"><button data-v="circle">丸</button><button data-v="square">四角(角丸)</button></div></div>
   <div class="row w"><span>テーマ</span><div class="ctl" id="themes"></div></div>
   <p class="sec">フォント</p><div id="fonts"></div>
   <div class="row"><span>文字が流れる速さ</span><input type="range" id="ns" min="10" max="120" step="5"></div>
   <div class="row"><span>明るさ</span><input type="range" id="br" min="0" max="85" value="0"></div>
   <button class="btn" id="fs">全画面にする</button>
+    <p class="sec">アプリ</p>
+    <input class="in" id="appurl" placeholder="再生画面アプリのURL(準備中)" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button class="btn" id="openapp">再生画面アプリを開く</button>
   </div>
 </div>
 <script>
@@ -164,8 +170,8 @@ function icon(n){
 try{document.getElementById('ati').href=icon(180);document.getElementById('fav').href=icon(64);}catch(e){}
 
 // ---------- 設定 ----------
-var D={spid:'',shift:false,ns:40,pos:{weather:'top',cal:'top',world:'top',news:'bottom',music:'top'},theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false,music:false}};
-try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.ns=sv.ns||40;D.spid=sv.spid||'';D.shift=!!sv.shift;D.pos=Object.assign(D.pos,sv.pos||{});D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
+var D={arot:true,ashape:'circle',appurl:'',spid:'',shift:false,ns:40,pos:{weather:'top',cal:'top',world:'top',news:'bottom',music:'top'},theme:'dark',font:'jost',h24:true,sec:true,br:0,w:{weather:true,news:true,cal:false,world:false,music:false}};
+try{var sv=JSON.parse(localStorage.getItem('okidokei')||'null');if(sv){D.ns=sv.ns||40;D.spid=sv.spid||'';D.arot=sv.arot!==false;D.ashape=sv.ashape||'circle';D.appurl=sv.appurl||'';D.shift=!!sv.shift;D.pos=Object.assign(D.pos,sv.pos||{});D.theme=sv.theme||'dark';D.font=sv.font||'jost';D.h24=sv.h24!==false;D.sec=sv.sec!==false;D.br=sv.br||0;D.w=Object.assign(D.w,sv.w||{});}}catch(e){}
 function save(){try{localStorage.setItem('okidokei',JSON.stringify(D));}catch(e){}}
 var $=function(i){return document.getElementById(i)};
 var wd=['日','月','火','水','木','金','土'];
@@ -308,19 +314,19 @@ function spGet(){try{return JSON.parse(localStorage.getItem(SPK)||'{}')}catch(e)
 function spSet(o){try{localStorage.setItem(SPK,JSON.stringify(o))}catch(e){}}
 function b64u(a){return btoa(String.fromCharCode.apply(null,new Uint8Array(a))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
 function redir(){return location.origin+location.pathname;}
-function spStatus(t){$('spst').textContent=t||(spGet().rt?'連携済み':'未連携');$('spcode').value=spGet().rt||'';}
+function spStatus(t){var g=spGet(),ok=g.sc&&g.sc.indexOf('user-modify-playback-state')>=0;$('spst').textContent=t||(g.rt?(g.sc?(ok?'連携済み(再生操作OK)':'連携済み(再生操作には再ログインが必要)'):'連携済み'):'未連携');$('spcode').value=spGet().rt||'';}
 async function spLogin(){
   if(!D.spid){spStatus('先にClient IDを入力してください');return;}
   if(!(window.crypto&&crypto.subtle)){spStatus('この環境(https)では連携できません');return;}
   var v=b64u(crypto.getRandomValues(new Uint8Array(48)));
   var ch=b64u(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(v)));
   try{localStorage.setItem('okidokei_v',v);}catch(e){}
-  location.href='https://accounts.spotify.com/authorize?'+new URLSearchParams({response_type:'code',client_id:D.spid,scope:'user-read-currently-playing user-read-playback-state user-modify-playback-state',redirect_uri:redir(),code_challenge_method:'S256',code_challenge:ch}).toString();
+  location.href='https://accounts.spotify.com/authorize?'+new URLSearchParams({response_type:'code',client_id:D.spid,scope:'user-read-currently-playing user-read-playback-state user-modify-playback-state',redirect_uri:redir(),code_challenge_method:'S256',code_challenge:ch,show_dialog:'true'}).toString();
 }
 async function spToken(prm){
   var r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(Object.assign({client_id:D.spid},prm)).toString()});
   var j=await r.json();if(!r.ok)throw j;
-  var o=spGet();o.at=j.access_token;o.exp=Date.now()+(j.expires_in-60)*1000;if(j.refresh_token)o.rt=j.refresh_token;spSet(o);return o;
+  var o=spGet();o.at=j.access_token;o.exp=Date.now()+(j.expires_in-60)*1000;if(j.refresh_token)o.rt=j.refresh_token;if(j.scope)o.sc=j.scope;spSet(o);return o;
 }
 async function spAccess(){
   var o=spGet();if(o.at&&o.exp>Date.now())return o.at;if(!o.rt||!D.spid)return null;
@@ -383,17 +389,25 @@ setInterval(muTick,1000);
 var tt;function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},3200);}
 async function spCtl(a){
   var t=await spAccess();if(!t){toast('Spotifyに未連携です');return;}
-  var m='POST',u='https://api.spotify.com/v1/me/player/';
+  var o=spGet();
+  if(o.sc&&o.sc.indexOf('user-modify-playback-state')<0){toast('再生の操作権限がありません。設定からSpotifyに再ログインしてください');return;}
+  var base='https://api.spotify.com/v1/me/player/',m='POST',path;
   if(a==='pp'){
-    m='PUT';var pl=muData&&muData.playing;u+=pl?'pause':'play';
+    m='PUT';var pl=muData&&muData.playing;path=pl?'pause':'play';
     if(muData){muData.prog=Math.min(muData.dur,muData.prog+(pl?Date.now()-muData.ts:0));muData.ts=Date.now();muData.playing=!pl;muState();muTick();}
-  }else u+=(a==='next'?'next':'previous');
+  }else path=(a==='next'?'next':'previous');
+  function go(dev){return fetch(base+path+(dev?'?device_id='+encodeURIComponent(dev):''),{method:m,headers:{Authorization:'Bearer '+t}});}
   try{
-    var r=await fetch(u,{method:m,headers:{Authorization:'Bearer '+t}});
-    if(r.status===403)toast('操作するには、設定からSpotifyを再連携してください');
-    else if(r.status===404)toast('再生中の端末が見つかりません');
-    else if(r.status===429)toast('少し待ってからもう一度');
-  }catch(e){}
+    var r=await go();
+    if(r.status===404){
+      var dr=await fetch(base+'devices',{headers:{Authorization:'Bearer '+t}});
+      if(dr.ok){var ds=(await dr.json()).devices||[],d=ds.filter(function(x){return x.is_active})[0]||ds[0];if(d)r=await go(d.id);}
+    }
+    if(!r.ok){
+      var msg='';try{var ej=await r.json();msg=(ej.error&&(ej.error.message||ej.error.reason))||'';}catch(e){}
+      toast('操作できませんでした('+r.status+(msg?': '+msg:'')+')');
+    }
+  }catch(e){toast('通信に失敗しました');}
   setTimeout(function(){if(refresh.music)refresh.music();},700);
 }
 document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.cb');if(b&&els.music&&els.music.contains(b))spCtl(b.dataset.a);});
@@ -407,7 +421,7 @@ function wake(){document.body.classList.remove('idle');clearTimeout(idle);idle=s
 $('gear').onclick=function(){loadFonts();sh.classList.add('open')};
 $('done').onclick=function(){sh.classList.remove('open');wake();};
 document.querySelectorAll('[data-w]').forEach(function(c){c.checked=!!D.w[c.dataset.w];c.onchange=function(){D.w[c.dataset.w]=c.checked;save();syncW();};});
-document.querySelectorAll('[data-o]').forEach(function(c){c.checked=!!D[c.dataset.o];c.onchange=function(){D[c.dataset.o]=c.checked;save();tick();};});
+document.querySelectorAll('[data-o]').forEach(function(c){c.checked=!!D[c.dataset.o];c.onchange=function(){D[c.dataset.o]=c.checked;save();tick();look();};});
 $('br').value=D.br;function applyBr(){$('dim').style.opacity=D.br/100;}applyBr();
 $('rf').onclick=function(){var b=this;['weather','news','music'].forEach(function(k){if(els[k]&&refresh[k])refresh[k]();});b.textContent='更新しました';clearTimeout(b._t);b._t=setTimeout(function(){b.textContent='天気・ニュースを今すぐ更新';},1800);};
 $('ns').value=D.ns;$('ns').oninput=function(){D.ns=+this.value;newsSpeed();save();};
@@ -432,7 +446,7 @@ var FD={},ALL=[],loaded=false;
 FL.forEach(function(g){g[1].forEach(function(f){FD[f[0]]={n:f[1],f:f[2],w:f[4],s:f[5],j:f[6]};ALL.push(f[3]);});});
 function loadFonts(){if(loaded)return;loaded=true;var l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family='+ALL.join('&family=')+'&display=swap';document.head.appendChild(l);}
 function look(){
-  var h=document.documentElement,F=FD[D.font]||FD.jost;h.dataset.theme=D.theme;
+  var h=document.documentElement,F=FD[D.font]||FD.jost;h.dataset.theme=D.theme;h.dataset.arot=D.arot?'on':'off';h.dataset.ashape=D.ashape;
   h.style.setProperty('--fnum','"'+F.f+'","Helvetica Neue",sans-serif');h.style.setProperty('--wn',F.w);h.style.setProperty('--cs',F.s);
   if(F.j){var st='"'+F.f+'",sans-serif';h.style.setProperty('--fd',st);h.style.setProperty('--ftxt',st);}else{h.style.removeProperty('--fd');h.style.removeProperty('--ftxt');}
   var m=document.querySelector('meta[name=theme-color]');if(m)m.content=TH[D.theme][1];
@@ -446,7 +460,11 @@ FL.forEach(function(g){var w=document.createElement('div');w.className='fg';w.in
   $('fonts').appendChild(w);});
 if(D.font!=='jost')loadFonts();
 look();
-document.querySelectorAll('.seg').forEach(function(sg){var k=sg.dataset.p;
+(function(){var sg=$('ashape');function mark(){sg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.v===D.ashape)});}
+  mark();sg.querySelectorAll('button').forEach(function(b){b.onclick=function(){D.ashape=b.dataset.v;save();mark();look();};});})();
+$('appurl').value=D.appurl;$('appurl').onchange=function(){D.appurl=this.value.trim();save();};
+$('openapp').onclick=function(){var u=$('appurl').value.trim();if(!/^https?:\/\//i.test(u)){toast('先にアプリのURLを入力してください');return;}D.appurl=u;save();location.href=u;};
+document.querySelectorAll('.seg[data-p]').forEach(function(sg){var k=sg.dataset.p;
   function mark(){sg.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.v===D.pos[k])});}
   mark();
   sg.querySelectorAll('button').forEach(function(b){b.onclick=function(){D.pos[k]=b.dataset.v;save();mark();syncW();};});
